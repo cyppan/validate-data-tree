@@ -1,0 +1,37 @@
+{
+  "name": "validate-data-tree",
+  "version": "1.0.0",
+  "description": "Validate your data trees using a dict schema",
+  "main": "dist/main.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cyppan/validate-data-tree.git"
+  },
+  "keywords": [
+    "validation"
+  ],
+  "author": "cyppan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cyppan/validate-data-tree/issues"
+  },
+  "homepage": "https://github.com/cyppan/validate-data-tree#readme",
+  "dependencies": {
+    "immutable": "^4.0.0-rc.12",
+    "lodash": "^4.17.11",
+    "moment": "^2.22.2",
+    "validator": "^10.9.0"
+  },
+  "devDependencies": {
+    "compression-webpack-plugin": "^2.0.0",
+    "mocha": "^5.2.0",
+    "webpack": "^4.27.0",
+    "webpack-cli": "^3.1.2"
+  }
+}
