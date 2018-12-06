@@ -2,13 +2,15 @@
   "name": "validate-data-tree",
   "version": "1.0.0",
   "description": "Validate your data trees using a dict schema",
-  "main": "dist/lib/validate.js",
-  "module": "lib/validate.js",
+  "main": "lib/validate.js",
+  "module": "src/validate.js",
   "directories": {
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint src",
+    "build": "babel src -d lib",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -30,6 +32,9 @@
     "validator": "^10.9.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.2.0",
+    "@babel/core": "^7.2.0",
+    "@babel/preset-env": "^7.2.0",
     "acorn": "^6.0.4",
     "eslint": "^5.9.0",
     "eslint-config-airbnb-base": "^13.1.0",
