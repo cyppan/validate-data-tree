@@ -121,6 +121,19 @@ describe('validate', () => {
     );
     assert.throws(
       () => validate({
+        username: 'cyppan',
+        email: 'cyppan@email.com',
+        roles: {},
+      }, schema), (errs) => {
+        assert.equal(errs.errors.length, 1);
+        assert.equal(errs.errors[0].path, 'roles');
+        assert.equal(errs.errors[0].validatorName, 'type');
+        assert.equal(errs.errors[0].validatorArgs, 'array');
+        return true;
+      },
+    );
+    assert.throws(
+      () => validate({
          username: 'cyppan',
          email: 'cyppan@email.com',
          roles: [1],
@@ -202,3 +215,137 @@ describe('validate', () => {
     ), true);
   });
 });
+
+const typesSchema = {
+  string: {
+    type: 'string',
+    allowNull: true,
+  },
+  integer: {
+    type: 'integer',
+    allowNull: true,
+  },
+  float: {
+    type: 'float',
+    allowNull: true,
+  },
+  boolean: {
+    type: 'boolean',
+    allowNull: true,
+  },
+  object: {
+    type: 'object',
+    allowNull: true,
+  },
+  array: {
+    type: 'array',
+    allowNull: true,
+  },
+};
+
+describe('validate types', () => {
+  it('should pass for empty keys', () => {
+    assert.equal(validate({}, typesSchema), true)
+  })
+
+  it('should pass for valid types', () => {
+    assert.equal(validate({
+      string: "string",
+      integer: 1,
+      float: 1.1,
+      boolean: true,
+      object: {},
+      array: [],
+    }, typesSchema), true)
+  })
+
+  it('should fail for invalid string', () => {
+    assert.throws(
+      () => validate(
+        { string: 0 },
+        typesSchema,
+      ), (errs) => {
+        assert.equal(errs.errors.length, 1);
+        assert.equal(errs.errors[0].path, 'string');
+        assert.equal(errs.errors[0].validatorName, 'type');
+        assert.equal(errs.errors[0].validatorArgs, 'string');
+        return true;
+      },
+    );
+  });
+
+  it('should fail for invalid integer', () => {
+    assert.throws(
+      () => validate(
+        { integer: "integer" },
+        typesSchema,
+      ), (errs) => {
+        assert.equal(errs.errors.length, 1);
+        assert.equal(errs.errors[0].path, 'integer');
+        assert.equal(errs.errors[0].validatorName, 'type');
+        assert.equal(errs.errors[0].validatorArgs, 'integer');
+        return true;
+      },
+    );
+  });
+
+  it('should fail for invalid float', () => {
+    assert.throws(
+      () => validate(
+        { float: "string" },
+        typesSchema,
+      ), (errs) => {
+        assert.equal(errs.errors.length, 1);
+        assert.equal(errs.errors[0].path, 'float');
+        assert.equal(errs.errors[0].validatorName, 'type');
+        assert.equal(errs.errors[0].validatorArgs, 'float');
+        return true;
+      },
+    );
+  });
+
+  it('should fail for invalid boolean', () => {
+    assert.throws(
+      () => validate(
+        { boolean: 0 },
+        typesSchema,
+      ), (errs) => {
+        assert.equal(errs.errors.length, 1);
+        assert.equal(errs.errors[0].path, 'boolean');
+        assert.equal(errs.errors[0].validatorName, 'type');
+        assert.equal(errs.errors[0].validatorArgs, 'boolean');
+        return true;
+      },
+    );
+  });
+
+  it('should fail for invalid object', () => {
+    assert.throws(
+      () => validate(
+        { object: 0 },
+        typesSchema,
+      ), (errs) => {
+        assert.equal(errs.errors.length, 1);
+        assert.equal(errs.errors[0].path, 'object');
+        assert.equal(errs.errors[0].validatorName, 'type');
+        assert.equal(errs.errors[0].validatorArgs, 'object');
+        return true;
+      },
+    );
+  });
+
+  it('should fail for invalid array', () => {
+    assert.throws(
+      () => validate(
+        { array: 0 },
+        typesSchema,
+      ), (errs) => {
+        assert.equal(errs.errors.length, 1);
+        assert.equal(errs.errors[0].path, 'array');
+        assert.equal(errs.errors[0].validatorName, 'type');
+        assert.equal(errs.errors[0].validatorArgs, 'array');
+        return true;
+      },
+    );
+  });
+})

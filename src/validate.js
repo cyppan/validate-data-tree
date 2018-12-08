@@ -117,12 +117,24 @@ const flattenSchema = (schema, prefix = []) => {
         ),
       };
     }
-    if (fieldSchema.validate) {
-      flat[mapPathToKey(path)] = fieldSchema;
-    }
+    flat[mapPathToKey(path)] = fieldSchema;
   });
   return flat;
 };
+
+/**
+ * used in validateFn below
+ */
+const createTypeException = (path, value, type) => new ValidationErrorItem(
+  `Validation type on ${path} failed`,
+  'Validation error',
+  path,
+  value,
+  null,
+  'type',
+  'type',
+  type,
+);
 
 /**
  * The internal validate function, it takes the object to validate,
@@ -169,8 +181,19 @@ const validateFn = (obj, schema, prefix = []) => {
         'required',
         null,
       );
+    } else if (fieldSchema.allowNull && value == null) {
+      result = true;
+    } else if (
+      (['string', 'text'].includes(fieldSchema.type) && typeof value !== 'string')
+      || (['integer', 'bigint'].includes(fieldSchema.type) && !Number.isInteger(value))
+      || (['float', 'double', 'decimal'].includes(fieldSchema.type) && (typeof value !== 'number' || Number.isNaN(value)))
+      || (fieldSchema.type === 'boolean' && typeof value !== 'boolean')
+      || (fieldSchema.type === 'object' && (typeof value !== 'object' || Array.isArray(value)))
+      || (fieldSchema.type === 'array' && !Array.isArray(value))
+    ) {
+      result = createTypeException(path, value, fieldSchema.type);
     } else {
-      result = (fieldSchema.allowNull && value == null) || fieldvalidator(value);
+      result = fieldvalidator(value);
     }
     if (result instanceof ValidationErrorItem) {
       errs = [...errs, result];
