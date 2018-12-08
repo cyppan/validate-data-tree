@@ -1,11 +1,12 @@
 const assert = require('assert');
 const { List } = require('immutable');
-const { validate } = require('../lib/validate');
+const { validate } = require('../src/validate');
 
 const schema = {
   username: {
     allowNull: false,
     validate: {
+      isString: true,
       is: ['^[a-zA-Z0-9]+$', 'i'],
       len: [5, 50],
     },
@@ -16,6 +17,7 @@ const schema = {
   email: {
     allowNull: false,
     validate: {
+      isString: true,
       isEmail: true,
     },
   },
@@ -25,6 +27,13 @@ const schema = {
     validate: {
       size: [1, 9999],
     },
+    schema: {
+      $: {
+        validate: {
+          isString: true
+        }
+      }
+    }
   },
 };
 
@@ -34,6 +43,7 @@ const nestedSchema = {
     schema: {
       locale: {
         validate: {
+          isString: true,
           equals: 'fr',
         },
       },
@@ -95,9 +105,9 @@ describe('validate', () => {
       () => validate({}, schema), (errs) => {
         assert.equal(errs.errors.length, 2);
         assert.equal(errs.errors[0].path, 'username');
-        assert.equal(errs.errors[0].validatorName, 'is');
+        assert.equal(errs.errors[0].validatorName, 'required');
         assert.equal(errs.errors[1].path, 'email');
-        assert.equal(errs.errors[1].validatorName, 'isEmail');
+        assert.equal(errs.errors[1].validatorName, 'required');
         return true;
       },
     );
@@ -109,12 +119,25 @@ describe('validate', () => {
         return true;
       },
     );
+    assert.throws(
+      () => validate({
+         username: 'cyppan',
+         email: 'cyppan@email.com',
+         roles: [1],
+      }, schema), (errs) => {
+        assert.equal(errs.errors.length, 1);
+        assert.equal(errs.errors[0].path, 'roles.0');
+        assert.equal(errs.errors[0].validatorName, 'isString');
+        return true;
+      },
+    );
   });
 
   it('should pass for valid object', () => {
     assert.equal(validate({
       username: 'cyppan',
       email: 'cyppan@email.com',
+      roles: ["ADMIN"],
     }, schema), true);
   });
 

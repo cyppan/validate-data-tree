@@ -34,9 +34,12 @@ const size = (o, min, max) => Array.isArray(o)
   && o.length >= min
   && (!max || o.length <= max);
 
+const isString = o => typeof o === 'string';
+
 const extraValidators = {
   allowedKeys,
   size,
+  isString,
 };
 
 /**
@@ -154,7 +157,21 @@ const validateFn = (obj, schema, prefix = []) => {
       : () => true;
 
     const value = (Array.isArray(path[0]) && path[0].length === 0) ? obj : getIn(obj, path);
-    const result = (fieldSchema.allowNull && value == null) || fieldvalidator(value);
+    let result;
+    if (!fieldSchema.allowNull && value == null) {
+      result = new ValidationErrorItem(
+        `Validation required on ${path} failed`,
+        'Validation error',
+        path,
+        value,
+        null,
+        'required',
+        'required',
+        null,
+      );
+    } else {
+      result = (fieldSchema.allowNull && value == null) || fieldvalidator(value);
+    }
     if (result instanceof ValidationErrorItem) {
       errs = [...errs, result];
     }
@@ -164,16 +181,18 @@ const validateFn = (obj, schema, prefix = []) => {
     const pathBeforeArr = path.slice(0, arrIndex);
     const pathAfterArr = path.slice(arrIndex + 1);
     const arr = getIn(obj, pathBeforeArr);
-    arr.forEach((el, i) => {
-      const arrErrs = validateFn(
-        el,
-        { [mapPathToKey(pathAfterArr) || '$']: fieldSchema },
-        [...prefix, ...pathBeforeArr, i],
-      );
-      if (arrErrs.length > 0) {
-        errs = [...errs, ...arrErrs];
-      }
-    });
+    if (arr && arr.length) {
+      arr.forEach((el, i) => {
+        const arrErrs = validateFn(
+          el,
+          { [mapPathToKey(pathAfterArr) || '$']: fieldSchema },
+          [...prefix, ...pathBeforeArr, i],
+        );
+        if (arrErrs.length > 0) {
+          errs = [...errs, ...arrErrs];
+        }
+      });
+    }
   });
   return errs;
 };
