@@ -374,6 +374,18 @@ const customValidatorSchema = {
   }
 }
 
+const schemaInSchema = {
+  obj: {
+    validate: {
+      throw: (o) => {
+        validate({}, {
+          k: {}
+        }, ['obj'])
+      }
+    }
+  }
+}
+
 describe('handle custom validators', () => {
   it('should fail validation', () => {
     assert.throws(
@@ -388,6 +400,19 @@ describe('handle custom validators', () => {
         assert.equal(errs.errors[1].path, 'l');
         assert.equal(errs.errors[1].value, 'whatever bis');
         assert.equal(errs.errors[1].validatorName, 'falsy');
+        return true;
+      },
+    );
+  });
+
+  it('should fail with right prefix', () => {
+    assert.throws(
+      () => validate(
+        { obj: {} },
+        schemaInSchema,
+      ), (errs) => {
+        assert.equal(errs.errors.length, 1);
+        assert.equal(errs.errors[0].path, 'obj.k');
         return true;
       },
     );

@@ -1,6 +1,6 @@
 {
   "name": "validate-data-tree",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Validate your data trees using a dict schema",
   "main": "lib/validate.js",
   "module": "src/validate.js",

@@ -136,10 +136,10 @@ const flattenSchema = (schema, prefix = []) => {
 /**
  * used in validateFn below
  */
-const createTypeException = (path, value, type) => new ValidationErrorItem(
+const createTypeException = (path, value, type, prefix = []) => new ValidationErrorItem(
   `Validation type on ${path} failed`,
   'Validation error',
-  path,
+  mapPathToKey([...prefix, ...path], true),
   value,
   null,
   'type',
@@ -185,7 +185,7 @@ const validateFn = (obj, schema, prefix = []) => {
       result = new ValidationErrorItem(
         `Validation required on ${path} failed`,
         'Validation error',
-        path,
+        mapPathToKey([...prefix, ...path], true),
         value,
         null,
         'required',
@@ -202,7 +202,7 @@ const validateFn = (obj, schema, prefix = []) => {
       || (fieldSchema.type === 'object' && (typeof value !== 'object' || Array.isArray(value)))
       || (fieldSchema.type === 'array' && !Array.isArray(value))
     ) {
-      result = createTypeException(path, value, fieldSchema.type);
+      result = createTypeException(path, value, fieldSchema.type, prefix);
     } else {
       result = fieldvalidator(value);
     }
