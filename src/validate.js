@@ -69,17 +69,28 @@ const schemaToValidators = (field, schema) => Object.keys(schema).map((k) => {
     || (Array.isArray(schema[k]) && schema[k])
     || [schema[k]];
   const sanitize = o => (!isStringValidator ? o : ((o && String(o)) || ''));
-  return o => (predicate.apply(validator, [sanitize(o), ...validatorArgs])
-    || new ValidationErrorItem(
-      `Validation ${k} on ${field} failed`,
-      'Validation error',
-      field,
-      sanitize(o),
-      null,
-      k,
-      k,
-      validatorArgs,
-    ));
+  return (o) => {
+    try {
+      if (predicate.apply(validator, [sanitize(o), ...validatorArgs])) {
+        return true;
+      }
+      throw new ValidationErrorItem(
+        `Validation ${k} on ${field} failed`,
+        'Validation error',
+        field,
+        sanitize(o),
+        null,
+        k,
+        k,
+        validatorArgs,
+      );
+    } catch (e) {
+      if (e instanceof ValidationErrorItem) {
+        return e;
+      }
+      throw e;
+    }
+  };
 });
 
 /**

@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { List } = require('immutable');
-const { validate } = require('../src/validate');
+const { validate, ValidationErrorItem } = require('../src/validate');
 
 const schema = {
   username: {
@@ -348,4 +348,48 @@ describe('validate types', () => {
       },
     );
   });
-})
+});
+
+const customValidatorSchema = {
+  k: {
+    validate: {
+      throw: (o) => {
+        throw new ValidationErrorItem(
+          "wrong value",
+          "Validation Error",
+          ["k"],
+          o,
+          null,
+          'throw',
+          'throw',
+          null
+        );
+      }
+    }
+  },
+  l: {
+    validate: {
+      falsy: o => false
+    }
+  }
+}
+
+describe('handle custom validators', () => {
+  it('should fail validation', () => {
+    assert.throws(
+      () => validate(
+        { k: "whatever", l: "whatever bis" },
+        customValidatorSchema,
+      ), (errs) => {
+        assert.equal(errs.errors.length, 2);
+        assert.equal(errs.errors[0].path, 'k');
+        assert.equal(errs.errors[0].value, 'whatever');
+        assert.equal(errs.errors[0].validatorName, 'throw');
+        assert.equal(errs.errors[1].path, 'l');
+        assert.equal(errs.errors[1].value, 'whatever bis');
+        assert.equal(errs.errors[1].validatorName, 'falsy');
+        return true;
+      },
+    );
+  });
+});
