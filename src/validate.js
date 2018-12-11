@@ -181,7 +181,7 @@ const validateFn = (obj, schema, prefix = []) => {
 
     const value = (Array.isArray(path[0]) && path[0].length === 0) ? obj : getIn(obj, path);
     let result;
-    if (!fieldSchema.allowNull && value == null) {
+    if (fieldSchema.allowNull === false && value == null) {
       result = new ValidationErrorItem(
         `Validation required on ${path} failed`,
         'Validation error',
@@ -192,7 +192,12 @@ const validateFn = (obj, schema, prefix = []) => {
         'required',
         null,
       );
-    } else if (fieldSchema.allowNull && value == null) {
+    } else if (
+      (
+        !Object.prototype.hasOwnProperty.call(fieldSchema, 'allowNull')
+        || fieldSchema.allowNull
+      ) && value == null
+    ) {
       result = true;
     } else if (
       (['string', 'text'].includes(fieldSchema.type) && typeof value !== 'string')

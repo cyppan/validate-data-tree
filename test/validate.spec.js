@@ -379,8 +379,11 @@ const schemaInSchema = {
     validate: {
       throw: (o) => {
         validate({}, {
-          k: {}
-        }, ['obj'])
+          k: {
+            allowNull: false,
+          },
+        }, ['obj']);
+        return true;
       }
     }
   }
@@ -413,6 +416,7 @@ describe('handle custom validators', () => {
       ), (errs) => {
         assert.equal(errs.errors.length, 1);
         assert.equal(errs.errors[0].path, 'obj.k');
+        assert.equal(errs.errors[0].validatorKey, 'required');
         return true;
       },
     );
